@@ -9,7 +9,7 @@ if not SERVER and not CLIENT then
   ZVM.MicrocodeDebug = true
 end
 
-
+ZVM.env = { surface=surface, math=math, bit=bit }
 
 
 --------------------------------------------------------------------------------
@@ -402,6 +402,10 @@ function ZVM:Precompile_Finalize()
   if not result then
     print("[ZVM ERROR]: "..(message or "unknown error"))
   else
+    setfenv(result,setmetatable(ZVM.env,{__index=function(self,k)
+      if k=="VM" then return VM end
+    end}))
+
     for address = self.PrecompileStartXEIP, self.PrecompileXEIP-1 do
       if not self.IsAddressPrecompiled[address] then
         self.IsAddressPrecompiled[address] = { }
